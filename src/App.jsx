@@ -12,8 +12,12 @@ import {
   Link
 } from "react-router-dom";
 
+import DateFnsUtils from '@date-io/date-fns';
+import { MuiPickersUtilsProvider } from '@material-ui/pickers';
+
 function App() {
   return (
+    <MuiPickersUtilsProvider utils={DateFnsUtils}>
     <Router>
     <div className="App">
       <ul>
@@ -32,6 +36,7 @@ function App() {
       </Switch>
     </div>
     </Router>
+    </MuiPickersUtilsProvider>
   );
 }
 

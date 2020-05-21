@@ -1,14 +1,13 @@
 import React, {useState, useEffect} from 'react';
-import * as ReactDOM from "react-dom";
 import firestore from "../../Firestore";
 
 import Button from '@material-ui/core/Button';
 import Container from '@material-ui/core/Container';
 
 import {DatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
-import DateFnsUtils from '@date-io/date-fns';
 
 import EmployeeTransactions from "./EmployeTransactions";
+import {EmployeeNames, EmployeeTransactionsRecords} from "../Enums/Employees"
 
 const Overview = (props) => {
 
@@ -20,6 +19,10 @@ const Overview = (props) => {
     const [tableHead, setTableHead] = useState([]); 
     const [tableSums, setTableSums] = useState([]);  
     const [table, setTable] = useState({});  
+
+    const employeeNames = EmployeeNames;
+    const employeeTransactionsRecords = EmployeeTransactionsRecords;
+
 
 
 
@@ -66,43 +69,6 @@ const Overview = (props) => {
     var rangeDate = get24hourRangeOnDay(today,month);
     var dayMoneySum = 0;
 
-    const employeeTransactionsRecords = {
-      "201" :[],
-      "202" :[],
-      "203" :[],
-      "204" :[],
-      "205" :[],
-      "206" :[],
-      "207" :[],
-      "208" :[],
-      "209" :[],
-      "210" :[],
-      "211" :[],
-      "212" :[],
-      "213" :[],
-      "214" :[],
-      "215" :[],
-      "216" :[],
-    };
-
-    const employeeNames = {
-      "201" : "Dong",
-      "202" : "Quang",
-      "203" : "Van",
-      "204" : "Quynh Anh",
-      "205" : "Ngan",
-      "206" : "Mai",
-      "207" : "Diem",
-      "208" : "Hong",
-      "209" : "Thu",
-      "210" : "Lan",
-      "211" : "Thuy",
-      "212" : "Lich",
-      "213" : "Nhung",
-      "214" : "Chi",
-      "215" : "Hang",
-      "216" : "Nhung2",
-    };
 
     db.collection("nailsfloraprod").where("timestamp",">=",rangeDate.start).where("timestamp","<=",rangeDate.end).get().then((querySnapshot) => {
 
@@ -198,7 +164,6 @@ const Overview = (props) => {
 
     return (
      <div>
-      <MuiPickersUtilsProvider utils={DateFnsUtils}>
       <Container maxWidth="sm">
 
         <DatePicker value={selectedDate} onChange={handleDateChange} />
@@ -208,7 +173,6 @@ const Overview = (props) => {
       <h1>
        {dayMoneySum}
       </h1>
-      </MuiPickersUtilsProvider>
 
       <EmployeeTransactions name="" tableSums={table.tableSums} tableRows={table.tableRows} tableHead={table.tableHead}></EmployeeTransactions>
 
