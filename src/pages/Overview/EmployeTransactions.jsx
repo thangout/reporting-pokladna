@@ -44,8 +44,8 @@ const EmployeeTransactions  = (props) => {
         </TableHead>
         <TableBody>
           {tableRows.map((value, index)=> {
-            let row = value.map(cell => <TableCell align="right" >{cell}</TableCell>)
-            return <TableRow>{row}</TableRow>
+            let row = value.map((cell, index) => <TableCell key={value + index} align="right" >{cell}</TableCell>)
+            return <TableRow key={index}>{row}</TableRow>
           })}
           <TableRow>
           {tableSums.map((value, index)=> {

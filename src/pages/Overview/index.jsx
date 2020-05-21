@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import * as ReactDOM from "react-dom";
-import firestore from "./Firestore";
+import firestore from "../../Firestore";
 
 import Button from '@material-ui/core/Button';
 import Container from '@material-ui/core/Container';
@@ -9,7 +9,6 @@ import {DatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
 
 import EmployeeTransactions from "./EmployeTransactions";
-
 
 const Overview = (props) => {
 
