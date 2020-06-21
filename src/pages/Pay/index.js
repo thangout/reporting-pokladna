@@ -20,7 +20,6 @@ const Pay = () => {
     // Update the document title using the browser API
     //setSelectedDate(new Date())
     if(Object.keys(table).length == 0){
-
       getMonthSalary(selectedDate);
     }
   });
@@ -68,6 +67,47 @@ const Pay = () => {
     endDate.setSeconds(0);
 
     return {"start":starDate,"end":endDate};
+  }
+
+  const getDividedByTenDays = (tableSums) =>{
+    let newTableSums = [];
+
+    let middleSums = [];
+
+    
+    for (let i = 0; i < tableSums.length; i++) {
+        let row = tableSums[i];
+        newTableSums.push(row)
+        console.log(row);
+
+
+        for (let j = 0; j < row.length; j++) {
+            if(middleSums[j] === undefined){
+                //initializing first rowt
+                middleSums.push(0);
+                middleSums[j] += row[j]
+            }else{
+                if(row[j] === undefined){
+                    middleSums[j]+= 0; 
+                }else{
+                    middleSums[j] += row[j];
+                }
+            }
+        } 
+
+        if(i==9 || i==19 || i==tableSums.length-1){
+            let halfEmployeeMidSum = [];
+            for(let employeeMidSum of middleSums){
+                halfEmployeeMidSum.push(employeeMidSum/2);
+            }
+
+            newTableSums.push(middleSums)
+            newTableSums.push(halfEmployeeMidSum)
+
+            middleSums = [];
+        }
+    }
+    return newTableSums;
   }
 
   const getData = (inputDate, lastDate) => {
@@ -154,8 +194,20 @@ const Pay = () => {
           //setTableSums(tableSums)
           //setTable({tableRows:tableRows, tableHead: tableHeadNames,tableSums: tableSums});
           dayEmployeeSums.push(tableSums)
+
           if(inputDate === lastDate){
-            setTable({tableRows:dayEmployeeSums, tableHead: tableHeadNames,tableSums: tableSums});
+
+            let tmpEmpployeeSums = getDividedByTenDays(dayEmployeeSums)
+            //add numbers to rows
+            /*
+            let rowNum = 1;
+            for (let i=0; i < tmpEmpployeeSums.length; i++){
+                tmpEmpployeeSums[i].unshift(rowNum);
+                rowNum++;
+            }
+            tableHeadNames.unshift("Day")
+            */
+            setTable({tableRows: tmpEmpployeeSums, tableHead: tableHeadNames,tableSums: tableSums});
           }
 
     });
