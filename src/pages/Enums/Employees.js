@@ -17,6 +17,25 @@
       "216" :[],
     };
 
+    const EmployeeTransactionsTimes = {
+      "201" :[],
+      "202" :[],
+      "203" :[],
+      "204" :[],
+      "205" :[],
+      "206" :[],
+      "207" :[],
+      "208" :[],
+      "209" :[],
+      "210" :[],
+      "211" :[],
+      "212" :[],
+      "213" :[],
+      "214" :[],
+      "215" :[],
+      "216" :[],
+    };
+
     const EmployeeNames = {
       "201" : "Dong",
       "202" : "Quang",
@@ -36,4 +55,4 @@
       "216" : "Nhung2",
     };
 
-    export {EmployeeNames, EmployeeTransactionsRecords}
+    export {EmployeeNames, EmployeeTransactionsRecords, EmployeeTransactionsTimes}

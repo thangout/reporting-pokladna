@@ -7,7 +7,9 @@ import Container from '@material-ui/core/Container';
 import {DatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 
 import EmployeeTransactions from "./EmployeTransactions";
-import {EmployeeNames, EmployeeTransactionsRecords} from "../Enums/Employees"
+import FraudTransactions from "./FraudTransactions";
+import {EmployeeNames, EmployeeTransactionsRecords, EmployeeTransactionsTimes} from "../Enums/Employees"
+import moment from 'moment';
 
 const Overview = (props) => {
 
@@ -18,10 +20,12 @@ const Overview = (props) => {
     const [tableRows, setTableRows] = useState([]); 
     const [tableHead, setTableHead] = useState([]); 
     const [tableSums, setTableSums] = useState([]);  
+    const [fraudTransactions, setFraudTransactions] = useState([]);  
     const [table, setTable] = useState({});  
 
     const employeeNames = EmployeeNames;
     const employeeTransactionsRecords = EmployeeTransactionsRecords;
+    const employeeTransactionsTimes = EmployeeTransactionsTimes;
 
 
 
@@ -32,7 +36,7 @@ const Overview = (props) => {
     if(Object.keys(table).length == 0){
       getData(selectedDate);    
     }
-    console.log("deje se")
+    //console.log("deje se")
   });
 
    const get24hourRangeOnDay = (monthDay,month) =>{
@@ -56,6 +60,7 @@ const Overview = (props) => {
 
 
   const getData = (inputDate) => {
+
     //let db = firestore.firestore();
 
 
@@ -72,10 +77,17 @@ const Overview = (props) => {
 
     db.collection("nailsfloraprod").where("timestamp",">=",rangeDate.start).where("timestamp","<=",rangeDate.end).get().then((querySnapshot) => {
 
+          //let TMPemployeeTransactionsTimes = Object.assign({},employeeTransactionsTimes);
+
+          for (let [key, value] of Object.entries(employeeTransactionsTimes)) {
+            employeeTransactionsTimes[key] = [];
+          }
+
           let tmpMoney = 0;
 
           querySnapshot.forEach((doc) => {
               var tmp = doc.data().timestamp.seconds;
+              let setDate = new Date(doc.data().timestamp.seconds * 1000);
               console.log(employeeNames[doc.data().employeeId] + doc.data().price + " " + new Date(doc.data().timestamp.seconds * 1000))
               dayMoneySum += doc.data().price
 
@@ -85,7 +97,20 @@ const Overview = (props) => {
 
               if (doc.data().employeeId in employeeTransactionsRecords) {
                 employeeTransactionsRecords[doc.data().employeeId].push(doc.data().price)
+
+                //check for duplicates
+                let isDuplicate = false;
+                employeeTransactionsTimes[doc.data().employeeId].map(item => {
+                  if (item.date.getTime() == setDate.getTime()) {
+                    isDuplicate = true
+                  }; 
+                })
+
+                if(!isDuplicate){
+                  employeeTransactionsTimes[doc.data().employeeId].push({money:doc.data().price,date: setDate });
+                }
               }
+
           });
 
           //find max length
@@ -137,13 +162,44 @@ const Overview = (props) => {
 
           tableHead.map(val => tableHeadNames.push(employeeNames[val]));
 
+          let fraudTransactions = findFraudTransactions(employeeTransactionsTimes);
+
           setDayMoneySum(tmpMoney)
           //setTableRows(tableRows)
           //setTableHead(tableHeadNames)
           //setTableSums(tableSums)
-          setTable({tableRows:tableRows, tableHead: tableHeadNames,tableSums: tableSums});
+          //setFraudTransactions(fraudTransactions);
+          setTable({tableRows:tableRows, tableHead: tableHeadNames,tableSums: tableSums, fraudTransactions:fraudTransactions});
     });
     return {}
+  }
+
+  const findFraudTransactions = (trns) => {
+
+    let records = Object.assign({}, trns);
+    let frauds = [];
+
+    for (let [key, value] of Object.entries(records)) {
+      //console.log(value)
+      for (let i = 0; i < value.length -1; i++){
+        let current = value[i].date;
+        let next = value[i+1].date;
+        let nextMoney = value[i+1].money;
+        let difference = next.getTime() - current.getTime(); // This will give difference in milliseconds
+        var resultSeconds = Math.abs(difference / 1000);
+
+        //check the difference if it was less than 30min it is a possible fraud
+        if (resultSeconds < 2700){
+          let formatedFirst = moment(current).format('MMMM Do YYYY, h:mm:ss a')
+          let formatedSecond = moment(next).format('MMMM Do YYYY, h:mm:ss a')
+          frauds.push({id:employeeNames[key] , firstDate: formatedFirst, secondDate: formatedSecond, diff: resultSeconds/60, money: nextMoney})
+        }
+      }
+    }
+
+
+      //console.log(frauds)
+    return frauds;
   }
 
   const handleDateChange = (date) => {
@@ -158,7 +214,7 @@ const Overview = (props) => {
     */
   }
 
-    console.log("calling render")
+    //console.log("calling render")
 
     if (!table.tableHead) return ("ahoj"); 
 
@@ -175,6 +231,7 @@ const Overview = (props) => {
       </h1>
 
       <EmployeeTransactions name="" tableSums={table.tableSums} tableRows={table.tableRows} tableHead={table.tableHead}></EmployeeTransactions>
+      <FraudTransactions transactions={table.fraudTransactions}></FraudTransactions>
 
      </div>
 

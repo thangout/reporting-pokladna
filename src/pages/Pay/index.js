@@ -9,7 +9,7 @@ import firestore from "../../Firestore";
 const Pay = () => {
 
   const db = firestore.firestore();
-  const [selectedDate, setSelectedDate] = useState(new Date()); 
+  const [selectedDate, setSelectedDate] = useState(new Date(2020,5,1)); 
   const [table, setTable] = useState({});  
   const employeeNames = EmployeeNames;
   const employeeTransactionsRecords = EmployeeTransactionsRecords;
