@@ -15,6 +15,7 @@
       "214" :[],
       "215" :[],
       "216" :[],
+      "217" :[],
     };
 
     const EmployeeTransactionsTimes = {
@@ -34,6 +35,7 @@
       "214" :[],
       "215" :[],
       "216" :[],
+      "217" :[],
     };
 
     const EmployeeNames = {
@@ -53,6 +55,7 @@
       "214" : "Chi",
       "215" : "Hang",
       "216" : "Nhung2",
+      "217" : "Diep",
     };
 
     export {EmployeeNames, EmployeeTransactionsRecords, EmployeeTransactionsTimes}
