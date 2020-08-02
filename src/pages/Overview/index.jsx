@@ -16,7 +16,7 @@ const Overview = (props) => {
     const db = firestore.firestore();
 
     const [dayMoneySum, setDayMoneySum] = useState(0); 
-    const [selectedDate, setSelectedDate] = useState(new Date()); 
+    const [selectedDate, setSelectedDate] = useState(new Date("2020/7/28")); 
     const [tableRows, setTableRows] = useState([]); 
     const [tableHead, setTableHead] = useState([]); 
     const [tableSums, setTableSums] = useState([]);  
@@ -27,6 +27,9 @@ const Overview = (props) => {
     const employeeTransactionsRecords = EmployeeTransactionsRecords;
     const employeeTransactionsTimes = EmployeeTransactionsTimes;
 
+    // let migrateObjects = []
+    const [migratedObjects, setMigrateObject] = useState([])
+    const [isMigrated, setMigrate] = useState(false)
 
 
 
@@ -39,7 +42,7 @@ const Overview = (props) => {
     //console.log("deje se")
   });
 
-   const get24hourRangeOnDay = (monthDay,month) =>{
+   const get24hourRangeOnDay = (monthDay,month,year) =>{
 
     let starDate = new Date();
     starDate.setMonth(month);
@@ -47,6 +50,7 @@ const Overview = (props) => {
     starDate.setHours(7);
     starDate.setMinutes(0);
     starDate.setSeconds(0);
+    starDate.setFullYear(year);
 
     let endDate = new Date();
     endDate.setMonth(month);
@@ -54,10 +58,25 @@ const Overview = (props) => {
     endDate.setHours(24);
     endDate.setMinutes(0);
     endDate.setSeconds(0);
+    endDate.setFullYear(year);
 
     return {"start":starDate,"end":endDate};
   }
 
+  const handleMigrate = () =>{
+    console.log("migruju")
+    //console.log(migratedObjects)
+    let i = 0;
+    migratedObjects.map(item=>{
+    //  if (i > 5 ) return 
+    // let setDate = new Date(item.timestamp.seconds * 1000);
+    let setDate = item.timestamp
+    console.log(setDate)
+      //db.collection("nailsfloraprod").add(item)
+      i++;
+    })
+
+  }
 
   const getData = (inputDate) => {
 
@@ -71,9 +90,8 @@ const Overview = (props) => {
     var month = pickedDate.getMonth();
     var year = pickedDate.getFullYear();
 
-    var rangeDate = get24hourRangeOnDay(today,month);
+    var rangeDate = get24hourRangeOnDay(today,month, year);
     var dayMoneySum = 0;
-
 
     db.collection("nailsfloraprod").where("timestamp",">=",rangeDate.start).where("timestamp","<=",rangeDate.end).get().then((querySnapshot) => {
 
@@ -84,12 +102,28 @@ const Overview = (props) => {
           }
 
           let tmpMoney = 0;
+          console.log("volam sa")
+          let migrateArray = []; 
+
 
           querySnapshot.forEach((doc) => {
+              let migrateContainer = {}
+              //console.log(doc.data())
               var tmp = doc.data().timestamp.seconds;
               let setDate = new Date(doc.data().timestamp.seconds * 1000);
-              console.log(employeeNames[doc.data().employeeId] + doc.data().price + " " + new Date(doc.data().timestamp.seconds * 1000))
+              //console.log(employeeNames[doc.data().employeeId] + doc.data().price + " " + new Date(doc.data().timestamp.seconds * 1000))
               dayMoneySum += doc.data().price
+
+              //console.log(doc.data()["timestamp"])
+              setDate.setFullYear(2020)
+              setDate.setMonth(6)
+              setDate.setDate(29)
+              setDate.setHours(setDate.getHours() + 3)
+              console.log(setDate.toString())
+              
+              Object.assign(migrateContainer, doc.data())
+              migrateContainer["timestamp"] = setDate;
+              migrateArray.push(migrateContainer)
 
               //console.log(doc.data().price + " " + doc.data().employeeId)
               tmpMoney = tmpMoney + doc.data().price;
@@ -112,6 +146,12 @@ const Overview = (props) => {
               }
 
           });
+
+          if(!isMigrated){
+            setMigrate(true);
+            setMigrateObject(migrateArray)
+            // migrateObjects = migrateArray;
+          }
 
           //find max length
           let maxRows = 0;
@@ -220,6 +260,8 @@ const Overview = (props) => {
 
     return (
      <div>
+
+       <Button onClick={()=>handleMigrate()}>Migrate</Button>
       <Container maxWidth="sm">
 
         <DatePicker value={selectedDate} onChange={handleDateChange} />
